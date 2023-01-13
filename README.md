@@ -3,8 +3,8 @@ PyMadAPI is easy-to-use library that uses MadAPI.
 
 # Installing (requires Git)
 
-```commandline
-pip install https://github.com/Team-MadBot/pymadapi 
+```bash
+$ pip install -U git+https://github.com/Team-MadBot/pymadapi 
 ```
 
 # Basic usage
