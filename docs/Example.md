@@ -11,8 +11,7 @@ from pymadapi.base import UserSession
 if __name__ == "__main__":
 	key = 'your-api-token'
 	session = UserSession(key) # Создаёт сессию для работы с пользователями
-	user = UserSession.get_userinfo(560529834325966858) # Получаем информацию о пользователе с 
-														# ID равным 560529834325966858
+	user = UserSession.get_userinfo(560529834325966858) # Получаем информацию о пользователе с ID равным 560529834325966858
 	print(user) # Выводим краткую информацию о пользователе
 ``` 
 
