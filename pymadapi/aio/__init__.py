@@ -22,8 +22,3 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__version__ = "1.1"
-__license__ = "MIT"
-__author__ = "MadCat9958"
-
-BASE_URL = "http://146.19.207.229:5000/api"

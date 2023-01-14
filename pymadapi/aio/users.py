@@ -22,37 +22,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import requests
-from typing import Literal
+import aiohttp
+from asyncio.events import AbstractEventLoop
 
 from pymadapi import BASE_URL
-from pymadapi.models import User
-from pymadapi.models import SubscriptionType
-from pymadapi.errors import Forbidden
-from pymadapi.errors import Unauthorized
-from pymadapi.errors import UserNotFound
-from pymadapi.errors import BadRequest
+from pymadapi import User
+from pymadapi import Forbidden
+from pymadapi import Unauthorized
+from pymadapi import UserNotFound
+from pymadapi import MadAPIError
 
 class UserSession:
-	"""Create a new MadAPI User non-async session.
+	"""Create a new MadAPI User async session.
 
 	Methods
 	-------
-	get_userinfo(user_id: int)
+	:coroutine: get_userinfo(user_id: int)
 	- Fetch the `User` model with the current `user_id` from MadAPI.
 	"""
-	def __init__(self, api_key: str):
+	def __init__(self, api_key: str, asyncio_loop: AbstractEventLoop = None):
 		"""Init a new UserSession for MadAPI
 
 		Parameters
 		----------
 		api_key: str
 		- MadAPI key for access to API.
+		asyncio_loop: Optional[asyncio.events.AbstractEventLoop]
+		- Asyncio event loop.
 		"""
 		self.api_key = api_key
+		self.session = aiohttp.ClientSession(loop=asyncio_loop)
 
-	def get_userinfo(self, user_id: int) -> User:
+	async def get_userinfo(self, user_id: int) -> User:
 		"""Gets userinfo from the MadAPI.
+
+		:coroutine:
 
 		Parameters
 		----------
@@ -73,21 +77,21 @@ class UserSession:
 		pymadapi.models.User
 		- Response with the information about user.
 		"""
-		response = requests.get(
-			BASE_URL + '/user/' + str(user_id), 
+		async with self.session.get(
+			BASE_URL + '/user/' + str(user_id),
 			headers = {
-				"Authorization": self.api_key
+				'Authorization': self.api_key
 			}
-		)
-		resp_json = response.json()
+		) as response:
+			resp_json = await response.json()
 
-		if response.status_code == 401:
+		if response.status == 401:
 			raise Unauthorized("Your API key is incorrect!")
-		elif response.status_code == 403:
+		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
-		elif response.status_code == 404:
+		elif response.status == 404:
 			raise UserNotFound(f"The user with ID '{user_id}' wasn't found!")
-		elif response.status_code >= 400:
+		elif response.status >= 400:
 			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
 
 		return User(
@@ -97,8 +101,10 @@ class UserSession:
 			type=resp_json['type']
 		)
 
-	def update_premium_user(self, user_id: int, level_type: Literal['user', 'server']) -> bool:
+	async def update_premium_user(self, user_id: int, level_type: Literal['user', 'server']) -> bool:
 		"""Updates MadBot Premium subscription level using MadAPI.
+
+		:coroutine:
 
 		If you want to set the subscription level for the new user, use `set_premium_user`.
 
@@ -127,16 +133,16 @@ class UserSession:
 		if level_type not in ['user', 'server']:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
 
-		response = requests.post(
-			BASE_URL + '/user/' + str(user_id), 
+		async with self.session.post(
+			BASE_URL + '/user/' + str(user_id),
 			headers = {
-				"Authorization": self.api_key
+				'Authorization': self.api_key
 			},
 			body = {
 				'type': level_type
 			}
-		)
-		resp_json = response.json()
+		) as response:
+			resp_json = await response.json()
 
 		if response.status_code == 401:
 			raise Unauthorized("Your API key is incorrect!")
@@ -151,8 +157,10 @@ class UserSession:
 
 		return True
 
-	def set_premium_user(self, user_id: int, level_type: Literal['user', 'server']) -> bool:
+	async def set_premium_user(self, user_id: int, level_type: Literal['user', 'server']) -> bool:
 		"""Sets MadBot Premium subscription level using MadAPI.
+
+		:coroutine:
 
 		If you want to update the subscription level for the existing user, use `update_premium_user`.
 
@@ -179,16 +187,16 @@ class UserSession:
 		if level_type not in ['user', 'server']:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
 
-		response = requests.put(
-			BASE_URL + '/user/' + str(user_id), 
+		async with self.session.put(
+			BASE_URL + '/user/' + str(user_id),
 			headers = {
-				"Authorization": self.api_key
+				'Authorization': self.api_key
 			},
 			body = {
 				'type': level_type
 			}
-		)
-		resp_json = response.json()
+		) as response:
+			resp_json = await response.json()
 
 		if response.status_code == 401:
 			raise Unauthorized("Your API key is incorrect!")

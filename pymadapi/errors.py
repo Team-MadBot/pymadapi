@@ -33,3 +33,6 @@ class Unauthorized(MadAPIError):
 
 class Forbidden(MadAPIError):
 	"""Exception that raises when given API key hasn't permissions for using the method"""
+
+class BadRequest(MadAPIError):
+	"""Exception that raises when given argument is incorrect"""
