@@ -18,7 +18,7 @@ setup(name='pymadapi',
       author=__author__,
       url='https://github.com/Team-MadBot/pyMadAPI',
       version=__version__,
-      packages=('pymadapi', 'pymadapi.base'),
+      packages=('pymadapi', 'pymadapi.base', 'pymadapi.aio'),
       license=__license__,
       classifiers=(
         "Programming Language :: Python :: 3",

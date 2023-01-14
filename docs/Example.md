@@ -68,6 +68,7 @@ async def main():
 	session = UserSession(key) # Создаёт сессию для работы с пользователями
 	user = await UserSession.get_userinfo(560529834325966858) # Получаем информацию о пользователе с ID равным 560529834325966858
 	print(user) # Выводим краткую информацию о пользователе
+	await session.close() # Закрываем сессию.
 
 if __name__ == "__main__":
 	asyncio.run(main())
@@ -90,6 +91,7 @@ async def main():
 		level_type='user'
 	) 
 	print(result) # Выводим True, если всё прошло успешно, иначе мы словим ошибку
+	await session.close() # Закрываем сессию.
 
 if __name__ == "__main__":
 	asyncio.run(main())
@@ -112,6 +114,7 @@ async def main():
 		level_type='user'
 	) 
 	print(result) # Выводим True, если всё прошло успешно, иначе мы словим ошибку
+	await session.close() # Закрываем сессию.
 
 if __name__ == "__main__":
 	asyncio.run(main())

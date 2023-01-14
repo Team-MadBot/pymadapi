@@ -23,14 +23,16 @@
 # SOFTWARE.
 
 import aiohttp
+from typing import Literal
 from asyncio.events import AbstractEventLoop
 
 from pymadapi import BASE_URL
-from pymadapi import User
-from pymadapi import Forbidden
-from pymadapi import Unauthorized
-from pymadapi import UserNotFound
-from pymadapi import MadAPIError
+from pymadapi.models import User
+from pymadapi.errors import Forbidden
+from pymadapi.errors import Unauthorized
+from pymadapi.errors import UserNotFound
+from pymadapi.errors import MadAPIError
+from pymadapi.errors import BadRequest
 
 class UserSession:
 	"""Create a new MadAPI User async session.
@@ -52,6 +54,12 @@ class UserSession:
 		"""
 		self.api_key = api_key
 		self.session = aiohttp.ClientSession(loop=asyncio_loop)
+
+	async def close(self):
+		"""Closes the `aiohttp.ClientSession` session. You should do it before 
+		stopping the program.
+		"""
+		await self.session.close()
 
 	async def get_userinfo(self, user_id: int) -> User:
 		"""Gets userinfo from the MadAPI.
@@ -96,7 +104,7 @@ class UserSession:
 
 		return User(
 			user_id=int(resp_json['user_id']),
-			code=response.status_code,
+			code=response.status,
 			is_premium=resp_json['is_premium'],
 			type=resp_json['type']
 		)
@@ -138,21 +146,21 @@ class UserSession:
 			headers = {
 				'Authorization': self.api_key
 			},
-			body = {
+			json = {
 				'type': level_type
 			}
 		) as response:
-			resp_json = await response.json()
+			pass
 
-		if response.status_code == 401:
+		if response.status == 401:
 			raise Unauthorized("Your API key is incorrect!")
-		elif response.status_code == 403:
+		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
-		elif response.status_code == 404:
+		elif response.status == 404:
 			raise UserNotFound(f"The user with ID '{user_id}' wasn't found!")
-		elif response.status_code == 400:
+		elif response.status == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
-		elif response.status_code >= 400:
+		elif response.status >= 400:
 			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
 
 		return True
@@ -192,19 +200,19 @@ class UserSession:
 			headers = {
 				'Authorization': self.api_key
 			},
-			body = {
+			json = {
 				'type': level_type
 			}
 		) as response:
-			resp_json = await response.json()
+			pass
 
-		if response.status_code == 401:
+		if response.status == 401:
 			raise Unauthorized("Your API key is incorrect!")
-		elif response.status_code == 403:
+		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
-		elif response.status_code == 400:
+		elif response.status == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
-		elif response.status_code >= 400:
+		elif response.status >= 400:
 			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
 
 		return True

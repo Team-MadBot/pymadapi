@@ -32,6 +32,7 @@ from pymadapi.errors import Forbidden
 from pymadapi.errors import Unauthorized
 from pymadapi.errors import UserNotFound
 from pymadapi.errors import BadRequest
+from pymadapi.errors import MadAPIError
 
 class UserSession:
 	"""Create a new MadAPI User non-async session.
@@ -130,13 +131,13 @@ class UserSession:
 		response = requests.post(
 			BASE_URL + '/user/' + str(user_id), 
 			headers = {
-				"Authorization": self.api_key
+				"Authorization": self.api_key,
+				"Content-Type": "application/json"
 			},
-			body = {
+			json = {
 				'type': level_type
 			}
 		)
-		resp_json = response.json()
 
 		if response.status_code == 401:
 			raise Unauthorized("Your API key is incorrect!")
@@ -147,7 +148,7 @@ class UserSession:
 		elif response.status_code == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
 		elif response.status_code >= 400:
-			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
+			raise MadAPIError(f"Unknown error! Error code: '{response.status_code}'")
 
 		return True
 
@@ -184,11 +185,10 @@ class UserSession:
 			headers = {
 				"Authorization": self.api_key
 			},
-			body = {
+			json = {
 				'type': level_type
 			}
 		)
-		resp_json = response.json()
 
 		if response.status_code == 401:
 			raise Unauthorized("Your API key is incorrect!")
@@ -197,6 +197,6 @@ class UserSession:
 		elif response.status_code == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
 		elif response.status_code >= 400:
-			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
+			raise MadAPIError(f"Unknown error! Error code: '{response.status_code}'")
 
 		return True
