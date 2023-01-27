@@ -25,4 +25,4 @@
 from . import __version__
 
 if __name__ == "__main__":
-	print("Wow, it's working. You're running pyMadAPI v" + __version__)
+	print("Wow, it's really working. You're running pyMadAPI v" + __version__)
