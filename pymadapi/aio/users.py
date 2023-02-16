@@ -97,7 +97,7 @@ class UserSession:
 			raise Unauthorized("Your API key is incorrect!")
 		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
-		elif response.status == 404:
+		elif response.status == 400:
 			raise UserNotFound(f"The user with ID '{user_id}' wasn't found!")
 		elif response.status >= 400:
 			raise MadAPIError(f"Unknown error! Error code: '{response.status}'")
@@ -152,11 +152,13 @@ class UserSession:
 		) as response:
 			pass
 
+		json = await response.json()
+
 		if response.status == 401:
 			raise Unauthorized("Your API key is incorrect!")
 		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
-		elif response.status == 404:
+		elif response.status == 400 and "not found" in json.get('message'):
 			raise UserNotFound(f"The user with ID '{user_id}' wasn't found!")
 		elif response.status == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
@@ -206,10 +208,14 @@ class UserSession:
 		) as response:
 			pass
 
+		json = await response.json()
+
 		if response.status == 401:
 			raise Unauthorized("Your API key is incorrect!")
 		elif response.status == 403:
 			raise Forbidden("You don't have access to this method!")
+		elif response.status == 400 and "exists" in json.get('message'):
+			raise BadRequest(f"The user with ID `{user_id}` already exists.")
 		elif response.status == 400:
 			raise BadRequest(f"The `level_type` value must be either 'user' of 'server'.")
 		elif response.status >= 400:
